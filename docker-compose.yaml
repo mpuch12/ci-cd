@@ -1,0 +1,40 @@
+version: "3"
+
+networks:
+    default:
+        driver: bridge
+
+services:
+  gitea:
+    image: gitea-custom:latest
+    container_name: gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    volumes:
+      - ./containers/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "2221:22"
+  jenkins:
+    image: jenkins-custom:latest
+    privileged: true
+    user: root
+    ports:
+      - 50000:50000
+    container_name: jenkins
+    volumes:
+      - ./containers/jenkins_compose/jenkins_configuration:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+  proxy:
+    image: proxy-custom:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
