@@ -1,6 +1,5 @@
 configuration-as-code:latest
 command-launcher:84.v4a_97f2027398
-javax-activation-api:1.2.0-4
 javax-mail-api:1.6.2-7
 jdk-tool:55.v1b_32b_6ca_f9ca
 sshd:3.249.v2dc2ea_416e33
