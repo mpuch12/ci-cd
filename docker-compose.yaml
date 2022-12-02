@@ -1,40 +1,100 @@
 version: "3"
 
 networks:
-    default:
-        driver: bridge
+  default:
+    driver: bridge
 
 services:
   gitea:
-    image: gitea-custom:latest
+    image: mpuchawski/gitea:latest
     container_name: gitea
     environment:
-      - USER_UID=1000
-      - USER_GID=1000
+      - USER_UID=$CI_UID
+      - USER_GID=$CI_GID
+      - GITEA_CLIENT_SECRET=018078y43nuh0y07fy437y07yy0&Y)*&Y)&
     volumes:
       - ./containers/gitea:/data
+      - ./config/gitea/app.ini:/data/gitea/conf/app.ini:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "3000:3000"
-      - "2221:22"
+    depends_on:
+      - postgres
+      - keycloak
+    extra_hosts:
+      - "<your-domain>:<machine-ip>"
   jenkins:
-    image: jenkins-custom:latest
-    privileged: true
-    user: root
+    image: mpuchawski/jenkins:latest
+    user: $CI_UID:$CI_GID
     ports:
       - 50000:50000
     container_name: jenkins
+    depends_on:
+      - keycloak
+    group_add:
+      - $DOCKER_GID
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - DOCKER_GID=$DOCKER_GID
+      - JENKINS_CLIENT_SECRET=76JHLAhlkjasd76987698769ASDCXdasg076
+      - DOMAIN_NAME=<your-domain>
     volumes:
-      - ./containers/jenkins_compose/jenkins_configuration:/var/jenkins_home
+      - ./containers/jenkins:/var/jenkins_home
+      - ./config/jenkins/casc.yaml:/usr/casc.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+    extra_hosts:
+      - "<your-domain>:<machine-ip>"
   proxy:
-    image: proxy-custom:latest
+    image: mpuchawski/proxy:latest
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+      - ./config/proxy/certs:/etc/ssl
+    depends_on:
+      - gitea
+      - jenkins
+      - keycloak
+    extra_hosts:
+      - "<your-domain>:<machine-ip>"
+  postgres:
+    image: mpuchawski/postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - KEYCLOAK_ADMIN_PASSWORD=Admin123
+    volumes:
+      - ./containers/postgres:/var/lib/postgresql/data
+    extra_hosts:
+      - "<your-domain>:<machine-ip>"
+  keycloak:
+    image: mpuchawski/keycloak:latest
+    environment:
+      - KC_DB=postgres
+      - KC_DB_PASSWORD=Admin123
+      - KC_DB_URL_HOST=postgres
+      - KC_DB_USERNAME=keycloak-admin
+      - KC_DB_SCHEMA=public
+      - KC_DB_URL_DATABASE=keycloak
+      - KC_HTTP_RELATIVE_PATH=/keycloak
+      - KC_HTTP_ENABLED=true
+      - KC_PROXY=edge
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin123
+      - KC_HOSTNAME=<your-domain>
+      - JENKINS_CLIENT_SECRET=76JHLAhlkjasd76987698769ASDCXdasg076
+      - GITEA_CLIENT_SECRET=018078y43nuh0y07fy437y07yy0&Y)*&Y)&
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/keycloak" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - ./config/keycloak/import:/opt/keycloak/data/import:ro
+    extra_hosts:
+      - "<your-domain>:<machine-ip>"
+    depends_on:
+      - postgres

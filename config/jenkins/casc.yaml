@@ -1,7 +1,30 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - usernamePassword:
+          id: "8a9b72e6-469b-4aa7-8d73-53c9ccfd436c"
+          password: "{AQAAABAAAACAYfpLNilLi3aAXz7RfcHamLn5eS++E/E65uwbX/kwLJGdOORBqqDovIXffJIbKi0zYi32a3uq5TWWrgav/c8lZA7dleBkiOD/NLJ2PeyJlzTHo0FcJGcCLUwF2nb6VX3SGVpkPbLZ87rXurumHUywca/BZG54OZ0YMnlqVMjtefltUiCm4E4WYtyu1MkxCLY0}"
+          scope: GLOBAL
+          username: "ci_admin"
 jenkins:
   agentProtocols:
   - "JNLP4-connect"
   - "Ping"
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+      - "GROUP:Job/Build:read"
+      - "GROUP:Job/Cancel:read"
+      - "GROUP:Job/Read:read"
+      - "GROUP:Job/Workspace:read"
+      - "GROUP:Overall/Administer:modify"
+      - "GROUP:Overall/Read:read"
+      - "GROUP:Run/Delete:read"
+      - "GROUP:Run/Replay:read"
+      - "GROUP:Run/Update:read"
+      - "GROUP:View/Configure:read"
+      - "GROUP:View/Read:read"
   clouds:
   - docker:
       dockerApi:
@@ -11,15 +34,29 @@ jenkins:
         readTimeout: 60
       name: "docker"
       templates:
-      - connector: "attach"
+      - connector:
+          jnlp:
+            jnlpLauncher:
+              workDirSettings:
+                disabled: false
+                failIfWorkDirIsMissing: false
+                internalDir: "remoting"
+            user: "jenkins"
         dockerTemplateBase:
           cpuPeriod: 0
           cpuQuota: 0
-          image: "jfactory/cloud-slave:latest"
+          extraGroups:
+          - "^${DOCKER_GROUP}"
+          extraGroupsString: "^${DOCKER_GROUP}"
+          image: "mpuchawski/cloud-slave:latest"
+          mounts:
+          - "type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock"
+          mountsString: "type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock"
         labelString: "cloud"
         mode: EXCLUSIVE
         name: "cloud"
         pullTimeout: 300
+        remoteFs: "/home/jenkins"
       - connector: "attach"
         dockerTemplateBase:
           cpuPeriod: 0
@@ -194,19 +231,23 @@ jenkins:
     enabled: true
   scmCheckoutRetryCount: 0
   securityRealm:
-    local:
-      allowsSignup: false
-      enableCaptcha: false
-      users:
-      - id: "admin"
-        name: "admin"
-        properties:
-        - "apiToken"
-        - "mailer"
-        - "myView"
-        - preferredProvider:
-            providerId: "default"
-        - "timezone"
+    oic:
+      authorizationServerUrl: "https://${DOMAIN_NAME}/keycloak/realms/ci_cd/protocol/openid-connect/auth"
+      clientId: "jenkins"
+      clientSecret: "${JENKINS_CLIENT_SECRET}"
+      disableSslVerification: true
+      endSessionEndpoint: "https://${DOMAIN_NAME}/keycloak/realms/ci_cd/protocol/openid-connect/logout"
+      escapeHatchEnabled: false
+      escapeHatchSecret: "{AQAAABAAAAAQculWkCqzJ3On/E1Y5f04g7YhVpLh3DRrVcOUi2P1It0=}"
+      groupsFieldName: "groups"
+      logoutFromOpenidProvider: true
+      postLogoutRedirectUrl: "https://${DOMAIN_NAME}/jenkins"
+      scopes: "openid microprofile-jwt offline_access address acr email profile roles\
+        \ web-origins phone group-membership"
+      tokenAuthMethod: "client_secret_basic"
+      tokenServerUrl: "https://${DOMAIN_NAME}/keycloak/realms/ci_cd/protocol/openid-connect/token"
+      userInfoServerUrl: "https://${DOMAIN_NAME}/keycloak/realms/ci_cd/protocol/openid-connect/userinfo"
+      userNameField: "preferred_username"
   slaveAgentPort: 50000
   updateCenter:
     sites:
@@ -250,10 +291,12 @@ unclassified:
     servers:
     - displayName: "gitea-server"
       manageHooks: false
-      serverUrl: "http://gitea:3000"
+      serverUrl: "https://${DOMAIN_NAME}/gitea"
   location:
     adminAddress: "address not configured yet <nobody@nowhere>"
-    url: "http://localhost"
+    url: "https://${DOMAIN_NAME}/jenkins/"
+  junitTestResultStorage:
+    storage: "file"
   mailer:
     charset: "UTF-8"
     useSsl: false
@@ -272,3 +315,5 @@ tool:
   mavenGlobalConfig:
     globalSettingsProvider: "standard"
     settingsProvider: "standard"
+
+ 

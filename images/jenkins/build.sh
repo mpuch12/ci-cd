@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t jenkins-custom .
+docker build -t mpuchawski/jenkins:latest .
