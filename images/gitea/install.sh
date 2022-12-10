@@ -34,13 +34,12 @@ else
   echo "Skipped creating user jenkins"
 fi
 
-echo "Waiting for keycloak connection"
-waitForSuccessfulConnection "http://keycloak:8080/keycloak/realms/ci_cd/.well-known/openid-configuration"
-
-
 is_keycloak_auth_exists=$(gitea admin auth list | grep "keycloak")
 
 if [ -z "$is_keycloak_auth_exists" ]; then
+  echo "Waiting for keycloak connection"
+  waitForSuccessfulConnection "http://keycloak:8080/keycloak/realms/ci_cd/.well-known/openid-configuration"
+
   gitea admin auth add-oauth \
     --name keycloak \
     --provider openidConnect \
