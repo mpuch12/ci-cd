@@ -15,14 +15,13 @@ services:
       - GITEA__DATABASE__PASSWD=Admin123
     volumes:
       - ./containers/gitea:/data
-      - ./config/gitea/app.ini:/data/gitea/conf/app.ini:ro
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     depends_on:
       - postgres
       - keycloak
     extra_hosts:
-      - "<your-domain>:<machine-ip>"
+      - "ci.pl:192.168.100.65"
   jenkins:
     image: mpuchawski/jenkins:latest
     user: $CI_UID:$CI_GID
@@ -37,7 +36,7 @@ services:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - DOCKER_GID=$DOCKER_GID
       - JENKINS_CLIENT_SECRET=76JHLAhlkjasd76987698769ASDCXdasg076
-      - DOMAIN_NAME=<your-domain>
+      - DOMAIN_NAME=ci.pl
     volumes:
       - ./containers/jenkins:/var/jenkins_home
       - ./config/jenkins/casc.yaml:/usr/casc.yaml:ro
@@ -45,7 +44,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     extra_hosts:
-      - "<your-domain>:<machine-ip>"
+      - "ci.pl:192.168.100.65"
   proxy:
     image: mpuchawski/proxy:latest
     ports:
@@ -61,7 +60,7 @@ services:
       - jenkins
       - keycloak
     extra_hosts:
-      - "<your-domain>:<machine-ip>"
+      - "ci.pl:192.168.100.65"
   postgres:
     image: postgres:14.1-alpine
     environment:
@@ -73,7 +72,9 @@ services:
       - ./containers/postgres:/var/lib/postgresql/data
       - ./config/postgres/init-sql.sh:/docker-entrypoint-initdb.d/init-sql.sh
     extra_hosts:
-      - "<your-domain>:<machine-ip>"
+      - "ci.pl:192.168.100.65"
+    ports:
+      - "5432:5432"
   keycloak:
     image: mpuchawski/keycloak:latest
     environment:
@@ -88,7 +89,7 @@ services:
       - KC_PROXY=edge
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin123
-      - KC_HOSTNAME=<your-domain>
+      - KC_HOSTNAME=ci.pl
       - JENKINS_CLIENT_SECRET=76JHLAhlkjasd76987698769ASDCXdasg076
       - GITEA_CLIENT_SECRET=018078y43nuh0y07fy437y07yy0&Y)*&Y)&
     healthcheck:
@@ -99,6 +100,6 @@ services:
     volumes:
       - ./config/keycloak/import:/opt/keycloak/data/import:ro
     extra_hosts:
-      - "<your-domain>:<machine-ip>"
+      - "ci.pl:192.168.100.65"
     depends_on:
       - postgres
