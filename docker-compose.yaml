@@ -4,6 +4,11 @@ networks:
   default:
     driver: bridge
 
+volumes:
+  jenkins:
+  postgres:
+  gitea:
+
 services:
   gitea:
     image: mpuchawski/gitea:latest
@@ -11,7 +16,7 @@ services:
     env_file:
       - config/gitea/.env
     volumes:
-      - ./containers/gitea:/data
+      - gitea:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     depends_on:
@@ -21,7 +26,7 @@ services:
       - "$DOMAIN_NAME:$HOST_IP"
   jenkins:
     image: mpuchawski/jenkins:latest
-    user: $CI_UID:$CI_GID
+    user: root
     ports:
       - 50000:50000
     container_name: jenkins
@@ -34,7 +39,7 @@ services:
     env_file:
       - config/jenkins/.env
     volumes:
-      - ./containers/jenkins:/var/jenkins_home
+      - jenkins:/var/jenkins_home
       - ./config/jenkins/casc.yaml:/usr/casc.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - /etc/timezone:/etc/timezone:ro
@@ -62,7 +67,7 @@ services:
     env_file:
       - config/postgres/.env
     volumes:
-      - ./containers/postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
       - ./config/postgres/init-sql.sh:/docker-entrypoint-initdb.d/init-sql.sh
     extra_hosts:
       - "$DOMAIN_NAME:$HOST_IP"
