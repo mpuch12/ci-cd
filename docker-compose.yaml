@@ -18,7 +18,7 @@ services:
       - postgres
       - keycloak
     extra_hosts:
-      - "<your-domain>:<machine-ip>"
+      - "$DOMAIN_NAME:$HOST_IP"
   jenkins:
     image: mpuchawski/jenkins:latest
     user: $CI_UID:$CI_GID
@@ -40,7 +40,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     extra_hosts:
-      - "<your-domain>:<machine-ip>"
+      - "$DOMAIN_NAME:$HOST_IP"
   proxy:
     image: mpuchawski/proxy:latest
     ports:
@@ -56,7 +56,7 @@ services:
       - jenkins
       - keycloak
     extra_hosts:
-      - "<your-domain>:<machine-ip>"
+      - "$DOMAIN_NAME:$HOST_IP"
   postgres:
     image: postgres:14.1-alpine
     env_file:
@@ -65,7 +65,7 @@ services:
       - ./containers/postgres:/var/lib/postgresql/data
       - ./config/postgres/init-sql.sh:/docker-entrypoint-initdb.d/init-sql.sh
     extra_hosts:
-      - "<your-domain>:<machine-ip>"
+      - "$DOMAIN_NAME:$HOST_IP"
     ports:
       - "5432:5432"
   keycloak:
@@ -80,6 +80,6 @@ services:
     volumes:
       - ./config/keycloak/import:/opt/keycloak/data/import:ro
     extra_hosts:
-      - "<your-domain>:<machine-ip>"
+      - "$DOMAIN_NAME:$HOST_IP"
     depends_on:
       - postgres
