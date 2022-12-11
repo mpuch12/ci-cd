@@ -20,8 +20,10 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     depends_on:
-      - postgres
-      - keycloak
+      postgres:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
     extra_hosts:
       - "$DOMAIN_NAME:$HOST_IP"
   jenkins:
@@ -31,7 +33,8 @@ services:
       - 50000:50000
     container_name: jenkins
     depends_on:
-      - keycloak
+      keycloak:
+        condition: service_healthy
     group_add:
       - $DOCKER_GID
     environment:
