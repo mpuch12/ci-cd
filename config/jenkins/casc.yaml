@@ -27,6 +27,7 @@ jenkins:
       templates:
       - connector:
           jnlp:
+            jenkinsUrl: "http://jenkins:8080/jenkins"
             jnlpLauncher:
               workDirSettings:
                 disabled: false
@@ -37,9 +38,10 @@ jenkins:
           cpuPeriod: 0
           cpuQuota: 0
           extraGroups:
-          - "^${DOCKER_GROUP}"
-          extraGroupsString: "^${DOCKER_GROUP}"
+          - "998"
+          extraGroupsString: "998"
           image: "mpuchawski/cloud-slave:latest"
+          network: "ci-cd-network"
           mounts:
           - "type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock"
           mountsString: "type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock"
@@ -48,141 +50,6 @@ jenkins:
         name: "cloud"
         pullTimeout: 300
         remoteFs: "/home/jenkins"
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java8-slave:latest"
-        labelString: "java8"
-        mode: EXCLUSIVE
-        name: "java8"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/javascript-slave:latest"
-        labelString: "javascript"
-        mode: EXCLUSIVE
-        name: "javascript"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java9-slave:latest"
-        labelString: "java9"
-        mode: EXCLUSIVE
-        name: "java9"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java11-slave:latest"
-        labelString: "java11"
-        mode: EXCLUSIVE
-        name: "java11"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/javascript-chromium-slave:latest"
-        labelString: "javascript-chromium"
-        mode: EXCLUSIVE
-        name: "javascript-chromium"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java10-slave:latest"
-        labelString: "java10"
-        mode: EXCLUSIVE
-        name: "java10"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java12-slave:latest"
-        labelString: "java12"
-        mode: EXCLUSIVE
-        name: "java12"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java13-slave:latest"
-        labelString: "java13"
-        mode: EXCLUSIVE
-        name: "java13"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java14-slave:latest"
-        labelString: "java14"
-        mode: EXCLUSIVE
-        name: "java14"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java15-slave:latest"
-        labelString: "java15"
-        mode: EXCLUSIVE
-        name: "java15"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java16-slave:latest"
-        labelString: "java16"
-        mode: EXCLUSIVE
-        name: "java16"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java13-with-libreoffice-slave:latest"
-        labelString: "java13-with-libreoffice"
-        mode: EXCLUSIVE
-        name: "java13-with-libreoffice"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java15-with-libreoffice-slave:latest"
-        labelString: "java15-with-libreoffice"
-        mode: EXCLUSIVE
-        name: "java15-with-libreoffice"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java17-slave:latest"
-        labelString: "java17"
-        mode: EXCLUSIVE
-        name: "java17"
-        pullTimeout: 300
-      - connector: "attach"
-        dockerTemplateBase:
-          cpuPeriod: 0
-          cpuQuota: 0
-          image: "jfactory/java16-browsers-slave:latest"
-        labelString: "java16-browsers"
-        mode: EXCLUSIVE
-        name: "java16-browsers"
-        pullTimeout: 300
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: false
@@ -192,21 +59,6 @@ jenkins:
   labelAtoms:
   - name: "built-in"
   - name: "cloud"
-  - name: "java10"
-  - name: "java11"
-  - name: "java12"
-  - name: "java13"
-  - name: "java13-with-libreoffice"
-  - name: "java14"
-  - name: "java15"
-  - name: "java15-with-libreoffice"
-  - name: "java16"
-  - name: "java16-browsers"
-  - name: "java17"
-  - name: "java8"
-  - name: "java9"
-  - name: "javascript"
-  - name: "javascript-chromium"
   - name: "local"
   labelString: "local"
   markupFormatter: "plainText"
@@ -282,9 +134,9 @@ unclassified:
     servers:
     - displayName: "gitea-server"
       manageHooks: false
-      serverUrl: "https://${DOMAIN_NAME}/gitea"
+      serverUrl: "http://gitea:3000"
   location:
-    adminAddress: "address not configured yet <nobody@nowhere>"
+    adminAddress: "N/A"
     url: "https://${DOMAIN_NAME}/jenkins/"
   junitTestResultStorage:
     storage: "file"

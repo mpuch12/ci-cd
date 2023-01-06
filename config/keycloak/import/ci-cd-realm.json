@@ -756,7 +756,8 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "${JENKINS_CLIENT_SECRET}",
       "redirectUris": [
-        "http://${KC_HOSTNAME}/*"
+        "http://${KC_HOSTNAME}/*",
+        "https://${KC_HOSTNAME}/*"
       ],
       "webOrigins": [],
       "notBefore": 0,

@@ -2,6 +2,7 @@ version: "3"
 
 networks:
   default:
+    name: ci-cd-network
     driver: bridge
 
 volumes:
@@ -35,10 +36,6 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
-    group_add:
-      - $DOCKER_GID
-    environment:
-      - DOCKER_GID
     env_file:
       - config/jenkins/.env
     volumes:
