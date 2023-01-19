@@ -1,6 +1,5 @@
 #!/bin/bash
 
-trap "{ echo 'Terminated with Ctrl+C'; }" SIGINT
 
 waitForSuccessfulConnection() {
   local counter=1
