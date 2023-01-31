@@ -38,16 +38,16 @@ jenkins:
           cpuPeriod: 0
           cpuQuota: 0
           extraGroups:
-          - "998"
+            - "998"
           extraGroupsString: "998"
-          image: "mpuchawski/cloud-slave:latest"
+          image: "mpuchawski/agent-builder:latest"
           network: "ci-cd-network"
           mounts:
-          - "type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock"
+            - "type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock"
           mountsString: "type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock"
-        labelString: "cloud"
+        labelString: "agent-builder"
         mode: EXCLUSIVE
-        name: "cloud"
+        name: "agent-builder"
         pullTimeout: 300
         remoteFs: "/home/jenkins"
   crumbIssuer:
@@ -110,7 +110,7 @@ security:
     tokenGenerationOnCreationEnabled: false
     usageStatisticsEnabled: true
   gitHostKeyVerificationConfiguration:
-    sshHostKeyVerificationStrategy: "knownHostsFileVerificationStrategy"
+    sshHostKeyVerificationStrategy: "acceptFirstConnectionStrategy"
   globalJobDslSecurityConfiguration:
     useScriptSecurity: true
   sSHD:

@@ -9,6 +9,7 @@ volumes:
   jenkins:
   postgres:
   gitea:
+  slave-m2-repository:
 
 services:
   gitea:
@@ -16,6 +17,8 @@ services:
     container_name: gitea
     env_file:
       - config/gitea/.env
+    ports:
+      - "8022:8022"
     volumes:
       - gitea:/data
       - /etc/timezone:/etc/timezone:ro

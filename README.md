@@ -34,3 +34,11 @@ It consists of:
 ## Notes
 
 For users logged in to gitea using openid connect as git command password should use generated access token in https connection
+
+## Configuring new organization
+
+1. Create dedicated user in gitea for CD pipelines ex example-jenkins
+2. Create new public organization in gitea add example-jenkins user as member of owners group
+3. Login as example-jenkins and create access token. Next add this token as secret in jenkins (kind: Gitea Personal Access Token)
+4. Create new organization folder in jenkins. Choose repository sources 'Gitea Organization'. Use credentials from step 3, and set Owner to name of newly created organization
+5. In gitea create new repository in created organization. Set owner to organization 
