@@ -6,11 +6,11 @@ sshd:3.270.vb_a_e71e64c287
 
 docker-plugin:1.2.10
 cloudbees-folder:6.800.v71307ca_b_986b
-git:4.14.2
+git:5.0.0
 job-dsl:1.81
 timestamper:1.21
 gitea:1.4.5
-branch-api:2.1051.v9985666b_f6cc
+branch-api:2.1071.v1a_188a_562481
 workflow-multibranch:716.vc692a_e52371b_
 gitea-checks:449.v0672c320ee47
 pipeline-model-definition:2.2118.v31fd5b_9944b_5
@@ -22,3 +22,4 @@ role-strategy:569.v7476f8e4fe29
 oic-auth:2.3
 
 blueocean:1.26.0
+ansicolor:1.0.2
